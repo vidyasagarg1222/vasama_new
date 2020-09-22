@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 import { FuseSharedModule } from '@fuse/shared.module';
-
+import {MatCardModule} from '@angular/material/card';
 import { AcademyCoursesComponent } from 'app/main/apps/academy/courses/courses.component';
 import { AcademyCourseComponent } from 'app/main/apps/academy/course/course.component';
 import { AcademyCoursesService } from 'app/main/apps/academy/courses.service';
@@ -49,7 +49,7 @@ const routes = [
         MatIconModule,
         MatInputModule,
         MatSelectModule,
-
+        MatCardModule,
         FuseSharedModule,
         FuseSidebarModule
     ],

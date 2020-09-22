@@ -5,22 +5,27 @@ import { takeUntil } from 'rxjs/operators';
 import { fuseAnimations } from '@fuse/animations';
 
 import { AcademyCoursesService } from 'app/main/apps/academy/courses.service';
-
+import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms'
 @Component({
-    selector   : 'academy-courses',
+    selector: 'academy-courses',
     templateUrl: './courses.component.html',
-    styleUrls  : ['./courses.component.scss'],
-    animations : fuseAnimations
+    styleUrls: ['./courses.component.scss'],
+    animations: fuseAnimations
 })
-export class AcademyCoursesComponent implements OnInit, OnDestroy
-{
+export class AcademyCoursesComponent implements OnInit, OnDestroy {
     categories: any[];
     courses: any[];
     coursesFilteredByCategory: any[];
     filteredCourses: any[];
     currentCategory: string;
     searchTerm: string;
-
+    form: FormGroup;
+    courses_new = [
+        { id: 1, course: 'JAVA' },
+        { id: 1, course: 'PHP' },
+        { id: 1, course: '.NET' },
+        { id: 1, course: 'NodeJS' }
+    ]
     // Private
     private _unsubscribeAll: Subject<any>;
 
@@ -30,9 +35,9 @@ export class AcademyCoursesComponent implements OnInit, OnDestroy
      * @param {AcademyCoursesService} _academyCoursesService
      */
     constructor(
-        private _academyCoursesService: AcademyCoursesService
-    )
-    {
+        private _academyCoursesService: AcademyCoursesService,
+        private fb: FormBuilder
+    ) {
         // Set the defaults
         this.currentCategory = 'all';
         this.searchTerm = '';
@@ -48,8 +53,7 @@ export class AcademyCoursesComponent implements OnInit, OnDestroy
     /**
      * On init
      */
-    ngOnInit(): void
-    {
+    ngOnInit(): void {
         // Subscribe to categories
         this._academyCoursesService.onCategoriesChanged
             .pipe(takeUntil(this._unsubscribeAll))
@@ -63,13 +67,27 @@ export class AcademyCoursesComponent implements OnInit, OnDestroy
             .subscribe(courses => {
                 this.filteredCourses = this.coursesFilteredByCategory = this.courses = courses;
             });
+        this.form = this.fb.group({
+            course_data: this.fb.array([this.addNewCourse()])
+        })
     }
-
+    addNewCourse() {
+        return this.fb.group({
+            course_name: ['', Validators.required]
+        })
+    }
+    addMoreCourse() {
+        const control = <FormArray>this.form['controls']['course_data'];
+        control.push(this.addNewCourse())
+    }
+    removeCourseData(i) {
+        const control = <FormArray>this.form['controls']['course_data'];
+        control.removeAt(i)
+    }
     /**
      * On destroy
      */
-    ngOnDestroy(): void
-    {
+    ngOnDestroy(): void {
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next();
         this._unsubscribeAll.complete();
@@ -82,16 +100,13 @@ export class AcademyCoursesComponent implements OnInit, OnDestroy
     /**
      * Filter courses by category
      */
-    filterCoursesByCategory(): void
-    {
+    filterCoursesByCategory(): void {
         // Filter
-        if ( this.currentCategory === 'all' )
-        {
+        if (this.currentCategory === 'all') {
             this.coursesFilteredByCategory = this.courses;
             this.filteredCourses = this.courses;
         }
-        else
-        {
+        else {
             this.coursesFilteredByCategory = this.courses.filter((course) => {
                 return course.category === this.currentCategory;
             });
@@ -107,17 +122,14 @@ export class AcademyCoursesComponent implements OnInit, OnDestroy
     /**
      * Filter courses by term
      */
-    filterCoursesByTerm(): void
-    {
+    filterCoursesByTerm(): void {
         const searchTerm = this.searchTerm.toLowerCase();
 
         // Search
-        if ( searchTerm === '' )
-        {
+        if (searchTerm === '') {
             this.filteredCourses = this.coursesFilteredByCategory;
         }
-        else
-        {
+        else {
             this.filteredCourses = this.coursesFilteredByCategory.filter((course) => {
                 return course.title.toLowerCase().includes(searchTerm);
             });

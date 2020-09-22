@@ -30,10 +30,7 @@ const appRoutes: Routes = [
         path        : 'pages',
         loadChildren: './main/pages/pages.module#PagesModule'
     },
-    {
-        path:'servers',
-        loadChildren:'./main/apps/servers.module#ServersModule'
-    },
+   
     {
         path        : 'ui',
         loadChildren: './main/ui/ui.module#UIModule'
